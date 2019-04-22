@@ -1,10 +1,10 @@
 import {
   TypeConstant,
-  ActionBuilderConstructor,
+  ActionCreatorBuilder,
   // ActionBuilderMap,
 } from './type-helpers';
 import { checkInvalidActionTypeInArray } from './utils/validation';
-import { createStandardAction } from './create-standard-action';
+import { createAction } from './create-action';
 
 export type AsyncActionCreator<
   TRequest extends [T1, P1],
@@ -20,11 +20,11 @@ export type AsyncActionCreator<
   T4 extends TypeConstant = TCancel[0],
   P4 = TCancel[1]
 > = {
-  request: ActionBuilderConstructor<T1, P1>;
-  success: ActionBuilderConstructor<T2, P2>;
-  failure: ActionBuilderConstructor<T3, P3>;
+  request: ActionCreatorBuilder<T1, P1>;
+  success: ActionCreatorBuilder<T2, P2>;
+  failure: ActionCreatorBuilder<T3, P3>;
   cancel: TCancel extends [TypeConstant, any]
-    ? ActionBuilderConstructor<T4, P4>
+    ? ActionCreatorBuilder<T4, P4>
     : never;
 };
 
@@ -67,10 +67,10 @@ export function createAsyncAction<
 
   const constructor = (<TPayload1, TPayload2, TPayload3, TPayload4>() => {
     return {
-      request: createStandardAction(requestType)<TPayload1>(),
-      success: createStandardAction(successType)<TPayload2>(),
-      failure: createStandardAction(failureType)<TPayload3>(),
-      cancel: cancelType && createStandardAction(cancelType)<TPayload4>(),
+      request: createAction(requestType)<TPayload1>(),
+      success: createAction(successType)<TPayload2>(),
+      failure: createAction(failureType)<TPayload3>(),
+      cancel: cancelType && createAction(cancelType)<TPayload4>(),
     };
   }) as AsyncActionBuilder<TType1, TType2, TType3, TType4>;
 
