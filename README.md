@@ -1163,6 +1163,29 @@ export const invalidAction = (payload: string) =>
 // Object literal may only specify known properties, and 'excessProp' does not exist in type '{ eventName: string; }
 ```
 
+### Generic async-action handler
+```tsx
+export const createAsyncActionEpic = <
+  TAsyncAction extends AsyncActionCreator<any, any, any, any>
+>(
+  asyncAction: TAsyncAction,
+  action$: Observable<any>,
+  source$: Observable<ReturnType<TAsyncAction['success']>['payload']>
+): Observable<
+  ReturnType<TAsyncAction['success']> | ReturnType<TAsyncAction['failure']>
+> =>
+  action$.pipe(
+    filter(isActionOf(asyncAction.request)),
+    switchMap(() =>
+      source$.pipe(
+        map(asyncAction.success),
+        catchError(message => of(asyncAction.failure(message) as any)),
+        takeUntil(action$.pipe(filter(isActionOf(saveTodosAsync.cancel))))
+      )
+    )
+  );
+```
+
 [⇧ back to top](#table-of-contents)
 
 ---
